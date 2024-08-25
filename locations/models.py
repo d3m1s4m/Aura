@@ -15,3 +15,4 @@ class Location(BaseModel):
     class Meta:
         verbose_name = _("location")
         verbose_name_plural = _("locations")
+        unique_together = ('name', 'lat', 'long')
