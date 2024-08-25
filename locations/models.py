@@ -15,7 +15,3 @@ class Location(BaseModel):
     class Meta:
         verbose_name = _("location")
         verbose_name_plural = _("locations")
-        unique_together = ('lat', 'long')
-        constraints = [
-            models.UniqueConstraint(fields=['name', 'lat', 'long'], name='unique_location')
-        ]
