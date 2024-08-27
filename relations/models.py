@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from custom_lib.common_models import BaseModel
 
-
 User = get_user_model()
 
 
