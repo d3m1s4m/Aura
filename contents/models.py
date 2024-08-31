@@ -20,8 +20,18 @@ class Post(BaseModel):
         blank=True, null=True, verbose_name=_("location")
     )
 
+    def clean(self):
+        """validate caption length"""
+        super().clean()
+        max_caption_length = 400
+        if self.caption and len(self.caption) > max_caption_length:
+            raise ValidationError({
+                'caption': _('Caption cannot exceed 400 characters.')
+            })
+
     def save(self, *args, **kwargs):
         """process hashtags and mentions before saving"""
+        self.full_clean()  # ensure validation is run before saving
         super().save(*args, **kwargs)
         self.process_hashtags_and_mentions()
 
@@ -44,7 +54,7 @@ class Post(BaseModel):
         for username in tagged_users:
             try:
                 user = User.objects.get(username=username)
-                TaggedUsers.objects.get_or_create(user=user, post=self)
+                TaggedUser.objects.get_or_create(user=user, post=self)
             except User.DoesNotExist:
                 pass
 
@@ -91,7 +101,7 @@ class Media(BaseModel):
 
 
 class Tag(BaseModel):
-    name = models.CharField(_("name"), max_length=100)
+    name = models.CharField(_("name"), max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -99,6 +109,7 @@ class Tag(BaseModel):
     class Meta:
         verbose_name = _("tag")
         verbose_name_plural = _("tags")
+        ordering = ('name',)
 
 
 class PostTag(BaseModel):
@@ -115,10 +126,9 @@ class PostTag(BaseModel):
     class Meta:
         verbose_name = _("post tag")
         verbose_name_plural = _("posts tags")
-        ordering = ('name',)
 
 
-class TaggedUsers(BaseModel):
+class TaggedUser(BaseModel):
     user = models.ForeignKey(
         User, related_name='tagged_posts', on_delete=models.CASCADE, verbose_name=_("user")
     )
