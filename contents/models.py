@@ -99,7 +99,7 @@ class PostTag(BaseModel):
     )
 
     def __str__(self):
-        return f'{self.post} - {self.tag.title}'
+        return f'{self.post} - {self.tag.name}'
 
     class Meta:
         verbose_name = _("post tag")
