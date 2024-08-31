@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from custom_lib.common_models import BaseModel
 from locations.models import Location
+from .tasks import process_post_content
 
 User = get_user_model()
 
@@ -30,33 +31,10 @@ class Post(BaseModel):
             })
 
     def save(self, *args, **kwargs):
-        """process hashtags and mentions before saving"""
+        """process post contents async before saving"""
         self.full_clean()  # ensure validation is run before saving
         super().save(*args, **kwargs)
-        self.process_hashtags_and_mentions()
-
-    def process_hashtags_and_mentions(self):
-        """extract hashtags and mentions from the caption"""
-        if self.caption:
-            self.extract_hashtags()
-            self.extract_mentions()
-
-    def extract_hashtags(self):
-        import re
-        tags = re.findall(r'#(\w+)', self.caption)
-        for tag in tags:
-            tag, created = Tag.objects.get_or_create(name=tag)
-            PostTag.objects.create(post=self, tag=tag)
-
-    def extract_mentions(self):
-        import re
-        tagged_users = re.findall(r'@(\w+)', self.caption)
-        for username in tagged_users:
-            try:
-                user = User.objects.get(username=username)
-                TaggedUser.objects.get_or_create(user=user, post=self)
-            except User.DoesNotExist:
-                pass
+        process_post_content.delay(self.id)  # trigger async task
 
     def __str__(self):
         return f'{self.user.username}: {self.id}'
