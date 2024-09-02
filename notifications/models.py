@@ -14,6 +14,7 @@ class Notification(models.Model):
     SAVE = 4
     MENTION = 5
     ACCEPT_REQUEST = 6
+    FOLLOW_REQUEST = 7
     NOTIFICATION_TYPES = [
         (LIKE, _('Like')),
         (COMMENT, _('Comment')),
@@ -21,6 +22,7 @@ class Notification(models.Model):
         (SAVE, _('Save')),
         (MENTION, _('Mention')),
         (ACCEPT_REQUEST, _('Accept request')),
+        (FOLLOW_REQUEST, _('Follow request')),
     ]
 
     sender = models.ForeignKey(
