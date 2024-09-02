@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'activities.apps.ActivitiesConfig',
     'contents.apps.ContentsConfig',
     'locations.apps.LocationsConfig',
+    'notifications.apps.NotificationsConfig',
     'relations.apps.RelationsConfig',
     'users.apps.UsersConfig',
 ]
