@@ -24,7 +24,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,11 +36,13 @@ INSTALLED_APPS = [
     'djoser',
     'debug_toolbar',
 
-    'users.apps.UsersConfig',
-    'relations.apps.RelationsConfig',
-    'locations.apps.LocationsConfig',
+    # 'activities.apps.ActivitiesConfig',
     'contents.apps.ContentsConfig',
+    'locations.apps.LocationsConfig',
+    'relations.apps.RelationsConfig',
+    'users.apps.UsersConfig',
 ]
+
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',

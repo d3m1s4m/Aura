@@ -108,10 +108,10 @@ class PostTag(BaseModel):
 
 class TaggedUser(BaseModel):
     user = models.ForeignKey(
-        User, related_name='tagged_posts', on_delete=models.CASCADE, verbose_name=_("user")
+        User, related_name="tagged_posts", on_delete=models.CASCADE, verbose_name=_("user")
     )
     post = models.ForeignKey(
-        Post, related_name='tagged_users', on_delete=models.CASCADE, verbose_name=_("post")
+        Post, related_name="tagged_users", on_delete=models.CASCADE, verbose_name=_("post")
     )
 
     def __str__(self):
