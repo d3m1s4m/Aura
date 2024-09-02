@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'djoser',
     'debug_toolbar',
 
-    # 'activities.apps.ActivitiesConfig',
+    'activities.apps.ActivitiesConfig',
     'contents.apps.ContentsConfig',
     'locations.apps.LocationsConfig',
     'relations.apps.RelationsConfig',
