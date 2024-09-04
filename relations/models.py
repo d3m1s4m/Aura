@@ -40,7 +40,7 @@ class BlockRelation(models.Model):
         User, related_name="blocking", on_delete=models.CASCADE, verbose_name=_("blocker")
     )
     blocked = models.ForeignKey(
-        User, related_name="blocked_by", on_delete=models.CASCADE, verbose_name=_("blocked by")
+        User, related_name="blocked_by", on_delete=models.CASCADE, verbose_name=_("blocked")
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
