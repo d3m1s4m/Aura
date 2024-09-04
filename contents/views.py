@@ -26,7 +26,7 @@ class TagPostsViewSet(ModelViewSet):
     ordering = ('-created_at',)
     ordering_fields = ('created_at',)
     pagination_class = CursorPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsAdminOrReadOnly)
     search_fields = ('user__username__istartswith',)
 
     def get_queryset(self):
