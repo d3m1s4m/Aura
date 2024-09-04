@@ -16,5 +16,5 @@ class TagViewSet(ModelViewSet):
     ordering = ("-created_at",)
     ordering_fields = ("created_at",)
     pagination_class = CursorPagination
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticated, IsAdminOrReadOnly)
     search_fields = ('name__istartswith',)
