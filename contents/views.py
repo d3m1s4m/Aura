@@ -6,6 +6,7 @@ from rest_framework.pagination import CursorPagination
 
 from contents.models import Tag
 from contents.serializers import TagSerializer
+from custom_lib.permissions import IsAdminOrReadOnly
 
 
 class TagViewSet(ModelViewSet):
@@ -15,5 +16,5 @@ class TagViewSet(ModelViewSet):
     ordering = ("-created_at",)
     ordering_fields = ("created_at",)
     pagination_class = CursorPagination
-    # permission_classes = (,)
+    permission_classes = (IsAdminOrReadOnly,)
     search_fields = ('name__istartswith',)
