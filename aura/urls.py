@@ -25,6 +25,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('locations/', include('locations.urls')),
+    path('contents/', include('contents.urls')),
 ] + debug_toolbar_urls()
 
 if settings.DEBUG:
