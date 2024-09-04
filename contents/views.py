@@ -1,12 +1,10 @@
-from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
-from contents.models import Tag, Post, PostTag
+from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer
-from custom_lib.common_permissions import IsAdminOrReadOnly
-from relations.models import BlockRelation, FollowRelation
+from custom_lib.common_permissions import IsAdminOrReadOnly, CanViewPostPermission
 
 
 class TagViewSet(ModelViewSet):
@@ -26,7 +24,7 @@ class TagPostsViewSet(ModelViewSet):
     ordering = ('-created_at',)
     ordering_fields = ('created_at',)
     pagination_class = CursorPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, CanViewPostPermission)
     search_fields = ('user__username__istartswith',)
 
     def get_queryset(self):
