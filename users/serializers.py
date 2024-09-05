@@ -1,5 +1,8 @@
+from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateSerializer as BaseUserCreateSerializer
 from rest_framework import serializers
+
+User = get_user_model()
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
@@ -24,3 +27,9 @@ class UserSerializer(BaseUserSerializer):
     @staticmethod
     def get_followings_count(user):
         return user.followings.count()
+
+
+class UserLightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'avatar', 'is_verified')
