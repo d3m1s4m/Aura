@@ -27,6 +27,7 @@ urlpatterns = [
     path('locations/', include('locations.urls')),
     path('contents/', include('contents.urls')),
     path('relations/', include('relations.urls')),
+    path('notifications/', include('notifications.urls')),
 ] + debug_toolbar_urls()
 
 if settings.DEBUG:
