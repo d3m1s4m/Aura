@@ -47,4 +47,4 @@ class Notification(models.Model):
     class Meta:
         verbose_name = _("notification")
         verbose_name_plural = _("notifications")
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
