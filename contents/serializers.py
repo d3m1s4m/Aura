@@ -26,3 +26,12 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'caption', 'media', 'location')
 
 
+class PostNotificationSerializer(serializers.ModelSerializer):
+    location = LocationSerializer()
+    media = MediaSerializer(many=True)
+
+    class Meta:
+        model = Post
+        fields = ('caption', 'media', 'location', 'created_at')
+
+
