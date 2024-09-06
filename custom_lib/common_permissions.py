@@ -22,6 +22,15 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return bool(request.user and request.user.is_staff)
 
 
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = User.objects.filter(username=view.kwargs['username']).first()
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(request.user == user)
+
+
 class CanViewUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         user = User.objects.filter(username=view.kwargs['username']).first()
