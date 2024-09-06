@@ -5,7 +5,7 @@ from rest_framework.pagination import CursorPagination
 
 from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer
-from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly
+from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly, CanViewUserPermission, IsOwnerOrReadOnly
 from relations.models import BlockRelation, FollowRelation
 
 
@@ -81,7 +81,7 @@ class UserPostViewSet(ModelViewSet):
     ordering = ('-created_at',)
     ordering_fields = ('created_at',)
     pagination_class = CursorPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly, CanViewUserPermission)
 
     def get_queryset(self):
         queryset = super().get_queryset()
