@@ -6,6 +6,7 @@ from . import views
 
 router = DefaultRouter()
 router.register('tags', views.TagViewSet, basename='tag')
+router.register('feed', views.FeedViewSet, basename='feed')
 
 tags_router = routers.NestedDefaultRouter(router, 'tags', lookup='tag')
 tags_router.register('posts', views.TagPostsViewSet, basename='tag-posts')

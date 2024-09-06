@@ -5,8 +5,8 @@ from rest_framework.pagination import CursorPagination
 
 from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer
-from custom_lib.common_permissions import IsAdminOrReadOnly, CanViewPostPermission
-from relations.models import BlockRelation
+from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly
+from relations.models import BlockRelation, FollowRelation
 
 
 class TagViewSet(ModelViewSet):
@@ -51,5 +51,24 @@ class TagPostsViewSet(ModelViewSet):
         blocked_users = BlockRelation.objects.filter(blocker=user).values_list('blocked', flat=True)
         blocker_users = BlockRelation.objects.filter(blocked=user).values_list('blocker', flat=True)
         queryset = queryset.exclude(user_id__in=blocked_users).exclude(user_id__in=blocker_users)
+
+        return queryset
+
+
+class FeedViewSet(ModelViewSet):
+    serializer_class = PostSerializer
+
+    ordering = ('-created_at',)
+    ordering_fields = ('created_at',)
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated, ReadOnly,)
+    search_fields = ('user__username__istartswith',)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        queryset = Post.objects.filter(
+            user__in=FollowRelation.objects.filter(from_user=user).values_list('to_user', flat=True)
+        )
 
         return queryset
