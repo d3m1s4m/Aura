@@ -72,3 +72,17 @@ class FeedViewSet(ModelViewSet):
         )
 
         return queryset
+
+
+class UserPostViewSet(ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    ordering = ('-created_at',)
+    ordering_fields = ('created_at',)
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(user__username=self.kwargs['username'])
