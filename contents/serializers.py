@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from contents.models import Tag, Post, Media
@@ -61,10 +62,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
         # extract media data from the validated data
         media_data = self.context['request'].FILES.getlist('media')  # get media files from the request
 
-        post = Post.objects.create(**validated_data)
+        with transaction.atomic():
+            post = Post.objects.create(**validated_data)
 
-        # handle media creation for the post
-        for media_file in media_data:
-            Media.objects.create(post=post, file=media_file)
+            # handle media creation for the post
+            for media_file in media_data:
+                Media.objects.create(post=post, file=media_file)
 
         return post
