@@ -195,6 +195,9 @@ class LikeCreateSerializer(serializers.ModelSerializer):
         if Like.objects.filter(user=user, post=post).exists():
             raise ValidationError(_("You can't like a post more than once."))
 
+        # ensure the user is commenting on behalf of themselves
+        attrs['user'] = request.user
+
         # Pass the validated data
         return attrs
 

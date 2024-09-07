@@ -2,9 +2,9 @@ from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from activities.models import Comment
+from activities.models import Comment, Like
 from activities.serializers import CommentListSerializer, CommentCreateSerializer, CommentDetailSerializer, \
-    CommentUpdateSerializer
+    CommentUpdateSerializer, LikeListLightSerializer, LikeCreateSerializer, LikeListSerializer
 
 
 class CommentViewSet(ModelViewSet):
@@ -27,4 +27,17 @@ class CommentViewSet(ModelViewSet):
             return CommentDetailSerializer
         elif self.action == 'update':
             return CommentUpdateSerializer
+        return self.serializer_class
+
+
+class LikeViewSet(ModelViewSet):
+    serializer_class = LikeListLightSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Like.objects.filter(user=user)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return LikeCreateSerializer
         return self.serializer_class
