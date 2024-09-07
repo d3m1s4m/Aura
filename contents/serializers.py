@@ -1,6 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
+from activities.models import Comment, Like
 from contents.models import Tag, Post, Media
 from locations.serializers import LocationSerializer
 
@@ -21,10 +22,22 @@ class PostSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username')
     location = LocationSerializer()
     media = MediaSerializer(many=True)
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ('id', 'user', 'caption', 'media', 'location')
+        fields = ('id', 'user', 'caption', 'media', 'location', 'like_count', 'comment_count')
+
+    @staticmethod
+    def get_like_count(obj):
+        # count the number of likes for the post
+        return Like.objects.filter(post=obj).count()
+
+    @staticmethod
+    def get_comment_count(obj):
+        # count the number of comments for the post
+        return Comment.objects.filter(post=obj).count()
 
 
 class PostNotificationSerializer(serializers.ModelSerializer):
