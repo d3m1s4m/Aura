@@ -86,3 +86,14 @@ def create_mention_notification(sender, instance, created, **kwargs):
             notification_type=Notification.MENTION,
             post=instance.post
         )
+
+
+@receiver(post_save, sender=Comment)
+def create_comment_reply_notification(sender, instance, created, **kwargs):
+    if created and instance.reply_to:
+        Notification.objects.create(
+            sender=instance.user,
+            receiver=instance.reply_to.user,
+            notification_type=Notification.REPLY,
+            post=instance.post
+        )
