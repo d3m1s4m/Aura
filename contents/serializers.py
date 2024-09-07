@@ -35,7 +35,7 @@ class PostNotificationSerializer(serializers.ModelSerializer):
         fields = ('caption', 'media', 'location', 'created_at')
 
 
-class CreatePostSerializer(serializers.ModelSerializer):
+class PostCreateSerializer(serializers.ModelSerializer):
     media = MediaSerializer(many=True, required=False)
 
     class Meta:

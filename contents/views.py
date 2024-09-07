@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
 from contents.models import Tag, Post
-from contents.serializers import TagSerializer, PostSerializer, CreatePostSerializer
+from contents.serializers import TagSerializer, PostSerializer, PostCreateSerializer
 from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly, CanViewUserPermission, IsOwnerOrReadOnly
 from relations.models import BlockRelation, FollowRelation
 
@@ -89,7 +89,7 @@ class UserPostViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return CreatePostSerializer
+            return PostCreateSerializer
         return self.serializer_class
 
     def perform_create(self, serializer):

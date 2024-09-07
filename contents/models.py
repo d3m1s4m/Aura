@@ -1,3 +1,4 @@
+import mimetypes
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -55,7 +56,7 @@ class Media(BaseModel):
     post = models.ForeignKey(
         Post, related_name="media", on_delete=models.CASCADE, verbose_name=_("post")
     )
-    media_type = models.PositiveSmallIntegerField(_("media type"), choices=MEDIA_TYPE, default=IMAGE)
+    media_type = models.PositiveSmallIntegerField(_("media type"), choices=MEDIA_TYPE, blank=True, null=True)
     file = models.FileField(
         _("file"), upload_to='contents/media/',
         validators=[FileExtensionValidator(
@@ -69,6 +70,23 @@ class Media(BaseModel):
         max_file_size = 10 * 1024 * 1024  # 10MB
         if self.file.size > max_file_size:
             raise ValidationError(_('File size must be under 10MB.'))
+
+    def save(self, *args, **kwargs):
+        """automatically set the media type based on file MIME type."""
+        if not self.media_type:
+            mime_type, _ = mimetypes.guess_type(self.file.name)
+
+            if mime_type:
+                if mime_type.startswith('image'):
+                    self.media_type = self.IMAGE
+                elif mime_type.startswith('video'):
+                    self.media_type = self.VIDEO
+                else:
+                    raise ValidationError(_('Unsupported media type.'))
+            else:
+                raise ValidationError(_('Unable to determine media type from the file.'))
+
+        super().save(*args, **kwargs)  # call the parent save method
 
     def __str__(self):
         return f'{self.post} - {self.get_media_type_display()}:{self.id}'
