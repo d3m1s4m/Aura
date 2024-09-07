@@ -5,8 +5,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
 from activities.models import Comment
-from activities.serializers import CommentListSerializer, CommentCreateLightSerializer, CommentUpdateSerializer, \
-    CommentDetailSerializer
+from activities.serializers import CommentCreateLightSerializer, CommentUpdateSerializer, \
+    CommentDetailSerializer, CommentListLightSerializer
 from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer, PostCreateSerializer
 from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly, CanViewUserPermission, IsOwnerOrReadOnly
@@ -101,8 +101,8 @@ class UserPostViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-class CommentViewSet(ModelViewSet):
-    serializer_class = CommentListSerializer
+class PostCommentViewSet(ModelViewSet):
+    serializer_class = CommentListLightSerializer
 
     ordering = ('-created_at',)
     ordering_fields = ('created_at',)

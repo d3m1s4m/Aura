@@ -10,10 +10,10 @@ user_post_detail = views.UserPostViewSet.as_view(
 user_post_list = views.UserPostViewSet.as_view(
     {'get': 'list', 'post': 'create'}
 )
-post_comment_detail = views.CommentViewSet.as_view(
+post_comment_detail = views.PostCommentViewSet.as_view(
     {'get': 'retrieve', 'put': 'update', 'delete': 'destroy', 'post': 'create'}
 )
-post_comment_list = views.CommentViewSet.as_view(
+post_comment_list = views.PostCommentViewSet.as_view(
     {'get': 'list', 'post': 'create'}
 )
 
