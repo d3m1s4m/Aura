@@ -12,7 +12,6 @@ like_detail = views.LikeViewSet.as_view(
 
 router = DefaultRouter()
 router.register('comments', views.CommentViewSet, basename='comment')
-router.register('likes', views.LikeViewSet, basename='like')
 
 
 urlpatterns = [

@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from activities.models import Comment, Like
+from activities.models import Comment, Like, Save
 from contents.models import Post
 from contents.serializers import PostSerializer
 from relations.models import FollowRelation, BlockRelation
@@ -217,3 +217,58 @@ class LikeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ('id', 'user', 'post', 'created_at')
+
+
+class SaveCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ('post',)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+
+        # retrieve the post object
+        post = get_object_or_404(Post, pk=attrs['post'].id)
+
+        # check if the post is public or if the user follows the post owner or if it is the user page
+        if post.user.is_private and user != post.user:
+            follows = FollowRelation.objects.filter(
+                from_user=user,
+                to_user=post.user,
+                is_accepted=True
+            ).exists()
+
+            if not follows:
+                raise ValidationError(
+                    _("You can't save this post because the user is private and you don't follow them.")
+                )
+        # if the account is public, check if the user is blocked
+        elif post.user != user:
+            blocked = BlockRelation.objects.filter(
+                blocker=post.user,
+                blocked=user
+            ).exists()
+
+            if blocked:
+                raise ValidationError(
+                    _("You can't save this post.")
+                )
+
+        # check if the user already liked the post
+        if Save.objects.filter(user=user, post=post).exists():
+            raise ValidationError(_("You can't save a post more than once."))
+
+        # ensure the user is commenting on behalf of themselves
+        attrs['user'] = request.user
+
+        # Pass the validated data
+        return attrs
+
+
+class SaveListSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
+    class Meta:
+        model = Like
+        fields = ('id', 'post', 'created_at')
