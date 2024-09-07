@@ -33,6 +33,11 @@ class CommentViewSet(ModelViewSet):
 class LikeViewSet(ModelViewSet):
     serializer_class = LikeListLightSerializer
 
+    ordering = ('-created_at',)
+    ordering_fields = ('created_at',)
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated,)
+
     def get_queryset(self):
         user = self.request.user
         return Like.objects.filter(user=user)
