@@ -221,7 +221,7 @@ class LikeListSerializer(serializers.ModelSerializer):
 
 class SaveCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Like
+        model = Save
         fields = ('post',)
 
     def validate(self, attrs):
@@ -270,5 +270,5 @@ class SaveListSerializer(serializers.ModelSerializer):
     post = PostSerializer()
 
     class Meta:
-        model = Like
+        model = Save
         fields = ('id', 'post', 'created_at')
