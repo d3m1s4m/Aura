@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from custom_lib.common_permissions import ReadOnly, CanViewUserPermission
 from relations.models import FollowRelation, BlockRelation
-from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer, FollowSerializer
+from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer, FollowSerializer, \
+    RequestSerializer
 
 User = get_user_model()
 
@@ -133,6 +134,39 @@ class FollowCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class RequestAcceptDeclineAPIView(CreateAPIView, DestroyAPIView):
+    serializer_class = RequestSerializer
+    queryset = FollowRelation.objects.none()
+    permission_classes = (IsAuthenticated,)
 
+    def post(self, request, *args, **kwargs):
+        username = self.kwargs.get('username')
+        user = request.user
+        from_user = get_object_or_404(User, username=username)
 
+        # fetch the follow request
+        follow_relation = get_object_or_404(
+            FollowRelation,
+            from_user=from_user,
+            to_user=user,
+            is_accepted=False
+        )
 
+        follow_relation.accept()
+        return Response({'status': 'Follow request accepted'}, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        username = self.kwargs.get('username')
+        user = request.user
+        from_user = get_object_or_404(User, username=username)
+
+        # fetch the follow request
+        follow_relation = get_object_or_404(
+            FollowRelation,
+            from_user=from_user,
+            to_user=user,
+            is_accepted=False
+        )
+
+        follow_relation.decline()
+        return Response({'status': 'Follow request declined'}, status=status.HTTP_204_NO_CONTENT)

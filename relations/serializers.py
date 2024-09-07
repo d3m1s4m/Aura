@@ -93,3 +93,9 @@ class FollowSerializer(serializers.ModelSerializer):
 
         return super().save(**kwargs)
 
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowRelation
+        fields = ('id', 'from_user', 'to_user', 'is_accepted')
+        read_only_fields = ('id', 'from_user', 'to_user', 'is_accepted')
