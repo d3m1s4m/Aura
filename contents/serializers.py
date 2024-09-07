@@ -36,7 +36,7 @@ class PostNotificationSerializer(serializers.ModelSerializer):
 
 
 class CreatePostSerializer(serializers.ModelSerializer):
-    media = MediaSerializer(many=True, required=True)
+    media = MediaSerializer(many=True, required=False)
 
     class Meta:
         model = Post
@@ -50,17 +50,18 @@ class CreatePostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f'Caption cannot exceed {max_length} characters.')
         return value
 
-    @staticmethod
-    def validate_media(value):
+    def validate(self, data):
         """ensure that media is attached to the post."""
-        if len(value) == 0:
+        media_files = self.context['request'].FILES.getlist('media')
+        if not media_files:
             raise serializers.ValidationError('You must attach at least one media file.')
-        return value
+        return data
 
     def create(self, validated_data):
         # extract media data from the validated data
         media_data = self.context['request'].FILES.getlist('media')  # get media files from the request
-        post = Post.objects.create(**validated_data)  # create the post first
+
+        post = Post.objects.create(**validated_data)
 
         # handle media creation for the post
         for media_file in media_data:
