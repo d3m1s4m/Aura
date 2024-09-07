@@ -1,8 +1,12 @@
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
+from activities.models import Comment
+from activities.serializers import CommentListSerializer, CommentCreateSerializer, CommentUpdateSerializer, \
+    CommentDetailSerializer
 from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer, PostCreateSerializer
 from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly, CanViewUserPermission, IsOwnerOrReadOnly
@@ -95,3 +99,46 @@ class UserPostViewSet(ModelViewSet):
     def perform_create(self, serializer):
         # automatically set the user to the currently authenticated user
         serializer.save(user=self.request.user)
+
+
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentListSerializer
+
+    ordering = ('-created_at',)
+    ordering_fields = ('created_at',)
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated, CanViewUserPermission)
+    search_fields = ('user__username__istartswith',)
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        user = self.request.user
+
+        queryset = Comment.objects.filter(post=post_id, reply_to__isnull=True)
+
+        # exclude comments from blocked users and accounts that have blocked the user
+        blocked_users = BlockRelation.objects.filter(blocker=user).values_list('blocked', flat=True)
+        blocker_users = BlockRelation.objects.filter(blocked=user).values_list('blocker', flat=True)
+        queryset = queryset.exclude(user_id__in=blocked_users).exclude(user_id__in=blocker_users)
+
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CommentCreateSerializer
+        elif self.action == 'update':
+            return CommentUpdateSerializer
+        elif self.action == 'retrieve':
+            return CommentDetailSerializer
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs['post_id']
+        post = get_object_or_404(Post, pk=post_id)
+
+        comment_id = self.kwargs.get('pk')
+        if comment_id:
+            comment = get_object_or_404(Comment, pk=comment_id)
+            serializer.save(user=self.request.user, post=post, reply_to=comment)
+
+        serializer.save(user=self.request.user, post=post)
