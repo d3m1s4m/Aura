@@ -1,10 +1,16 @@
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView
+from rest_framework.response import Response
 
 from custom_lib.common_permissions import ReadOnly, CanViewUserPermission
 from relations.models import FollowRelation, BlockRelation
-from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer
+from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer, FollowSerializer
+
+User = get_user_model()
 
 
 class FollowerListAPIView(ListAPIView):
@@ -96,3 +102,37 @@ class BlockedUsersListAPIView(ListAPIView):
         user = self.request.user
 
         return BlockRelation.objects.filter(blocker=user)
+
+
+class FollowCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
+    queryset = FollowRelation.objects.none()
+    serializer_class = FollowSerializer
+    lookup_field = 'username'
+
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_context(self):
+        # include the request in the context along with the username
+        context = super().get_serializer_context()
+        context['username'] = self.kwargs['username']
+        return context
+
+    def get_object(self):
+        from_user = self.request.user
+        username = self.kwargs['username']
+        to_user = get_object_or_404(User, username=username)
+
+        # retrieve the FollowRelation object to be deleted
+        follow_relation = get_object_or_404(FollowRelation, from_user=from_user, to_user=to_user)
+        return follow_relation
+
+    def delete(self, request, *args, **kwargs):
+        # use get_object to retrieve the instance to be deleted
+        self.object = self.get_object()
+        self.object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+

@@ -1,7 +1,12 @@
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from relations.models import FollowRelation, BlockRelation
 from users.serializers import UserLightSerializer
+
+User = get_user_model()
 
 
 class FollowerSerializer(serializers.ModelSerializer):
@@ -36,3 +41,55 @@ class BlockedSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockRelation
         fields = ('blocked', 'created_at')
+
+
+class FollowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FollowRelation
+        fields = ('id', 'from_user', 'to_user', 'is_accepted')
+        read_only_fields = ('id', 'from_user', 'to_user', 'is_accepted')
+
+    def validate(self, attrs):
+        from_user = self.context['request'].user
+        username = self.context['username']
+
+        # retrieve 'to_user' by username
+        try:
+            to_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise ValidationError(_("The user with this username does not exist."))
+
+        # check if user is trying to follow themselves
+        if from_user == to_user:
+            raise ValidationError(_("You cannot follow yourself."))
+
+        # check if the follow relationship already exists
+        if FollowRelation.objects.filter(from_user=from_user, to_user=to_user).exists():
+            raise ValidationError(_("You are already following this user."))
+
+        # check if the user has been blocked
+        if BlockRelation.objects.filter(blocker=to_user, blocked=from_user).exists():
+            raise ValidationError(_("You cannot follow this user."))
+
+        # check if the from_user has blocked the to_user
+        if BlockRelation.objects.filter(blocker=from_user, blocked=to_user).exists():
+            raise ValidationError(_("You cannot follow this user."))
+
+        # attach the resolved to_user to the attrs
+        attrs['to_user'] = to_user
+
+        return attrs
+
+    def save(self, **kwargs):
+        from_user = self.context['request'].user
+
+        # set the 'from_user' to the authenticated user
+        kwargs['from_user'] = from_user
+
+        # automatically accept follow request if the profile is public
+        if not self.validated_data['to_user'].is_private:
+            self.validated_data['is_accepted'] = True
+
+        return super().save(**kwargs)
+
