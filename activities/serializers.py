@@ -3,8 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from activities.models import Comment
+from activities.models import Comment, Like
 from contents.models import Post
+from contents.serializers import PostSerializer
 from relations.models import FollowRelation, BlockRelation
 from users.serializers import UserLightSerializer
 
@@ -152,3 +153,64 @@ class CommentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'user', 'text', 'replies')
+
+
+class LikeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ('post',)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        user = request.user
+
+        # retrieve the post object
+        post = get_object_or_404(Post, pk=attrs['post'].id)
+
+        # check if the post is public or if the user follows the post owner or if it is the user page
+        if post.user.is_private and user != post.user:
+            follows = FollowRelation.objects.filter(
+                from_user=user,
+                to_user=post.user,
+                is_accepted=True
+            ).exists()
+
+            if not follows:
+                raise ValidationError(
+                    _("You can't like this post because the user is private and you don't follow them.")
+                )
+        # if the account is public, check if the user is blocked
+        elif post.user != user:
+            blocked = BlockRelation.objects.filter(
+                blocker=post.user,
+                blocked=user
+            ).exists()
+
+            if blocked:
+                raise ValidationError(
+                    _("You can't like this post.")
+                )
+
+        # check if the user already liked the post
+        if Like.objects.filter(user=user, post=post).exists():
+            raise ValidationError(_("You can't like a post more than once."))
+
+        # Pass the validated data
+        return attrs
+
+
+class LikeListLightSerializer(serializers.ModelSerializer):
+    post = PostSerializer()
+
+    class Meta:
+        model = Like
+        fields = ('id', 'post', 'created_at')
+
+
+class LikeListSerializer(serializers.ModelSerializer):
+    user = UserLightSerializer()
+    post = PostSerializer()
+
+    class Meta:
+        model = Like
+        fields = ('id', 'user', 'post', 'created_at')
