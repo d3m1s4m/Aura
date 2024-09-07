@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
 from contents.models import Tag, Post
-from contents.serializers import TagSerializer, PostSerializer
+from contents.serializers import TagSerializer, PostSerializer, CreatePostSerializer
 from custom_lib.common_permissions import IsAdminOrReadOnly, ReadOnly, CanViewUserPermission, IsOwnerOrReadOnly
 from relations.models import BlockRelation, FollowRelation
 
@@ -86,3 +86,12 @@ class UserPostViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(user__username=self.kwargs['username'])
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreatePostSerializer
+        return self.serializer_class
+
+    def perform_create(self, serializer):
+        # automatically set the user to the currently authenticated user
+        serializer.save(user=self.request.user)
