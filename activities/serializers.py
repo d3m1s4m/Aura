@@ -6,13 +6,25 @@ from activities.models import Comment
 from users.serializers import UserLightSerializer
 
 
-class CommentCreateSerializer(serializers.ModelSerializer):
+class CommentCreateLightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('text',)
 
     @staticmethod
-    def validate_caption(attr):
+    def validate_text(attr):
+        if len(attr) > 256:
+            raise ValidationError(_("Comment text cannot be more than 256 characters."))
+        return attr
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('text', 'post', 'reply_to')
+
+    @staticmethod
+    def validate_text(attr):
         if len(attr) > 256:
             raise ValidationError(_("Comment text cannot be more than 256 characters."))
         return attr
@@ -30,7 +42,7 @@ class CommentUpdateSerializer(serializers.ModelSerializer):
         fields = ('text',)
 
     @staticmethod
-    def validate_caption(attr):
+    def validate_text(attr):
         if len(attr) > 256:
             raise ValidationError(_("Comment text cannot be more than 256 characters."))
         return attr

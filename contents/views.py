@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import CursorPagination
 
 from activities.models import Comment
-from activities.serializers import CommentListSerializer, CommentCreateSerializer, CommentUpdateSerializer, \
+from activities.serializers import CommentListSerializer, CommentCreateLightSerializer, CommentUpdateSerializer, \
     CommentDetailSerializer
 from contents.models import Tag, Post
 from contents.serializers import TagSerializer, PostSerializer, PostCreateSerializer
@@ -125,7 +125,7 @@ class CommentViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == 'create':
-            return CommentCreateSerializer
+            return CommentCreateLightSerializer
         elif self.action == 'update':
             return CommentUpdateSerializer
         elif self.action == 'retrieve':
