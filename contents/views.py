@@ -177,3 +177,35 @@ class PostLikeViewSet(ModelViewSet):
         context['post_id'] = self.kwargs['post_id']
         return context
 
+
+class PostSaveViewSet(ModelViewSet):
+    serializer_class = SaveListSerializer
+
+    ordering = ('-created_at',)
+    ordering_fields = ('created_at',)
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated, CanViewUserPermission)
+    search_fields = ('user__username__istartswith',)
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        user = self.request.user
+
+        queryset = Save.objects.filter(post=post_id)
+
+        # exclude comments from blocked users and accounts that have blocked the user
+        blocked_users = BlockRelation.objects.filter(blocker=user).values_list('blocked', flat=True)
+        blocker_users = BlockRelation.objects.filter(blocked=user).values_list('blocker', flat=True)
+        queryset = queryset.exclude(user_id__in=blocked_users).exclude(user_id__in=blocker_users)
+
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return SaveCreateLightSerializer
+        return self.serializer_class
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['post_id'] = self.kwargs['post_id']
+        return context

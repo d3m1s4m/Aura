@@ -25,6 +25,13 @@ post_like_list = views.PostLikeViewSet.as_view(
     {'get': 'list', 'post': 'create'}
 )
 
+post_save_detail = views.PostSaveViewSet.as_view(
+    {'get': 'retrieve', 'delete': 'destroy'}
+)
+post_save_list = views.PostSaveViewSet.as_view(
+    {'get': 'list', 'post': 'create'}
+)
+
 router = DefaultRouter()
 router.register('tags', views.TagViewSet, basename='tag')
 router.register('feed', views.FeedViewSet, basename='feed')
@@ -43,4 +50,6 @@ urlpatterns = [
     path('<str:username>/posts/<int:post_id>/comments/<int:pk>/', post_comment_detail, name='post-comment-detail'),
     path('<str:username>/posts/<int:post_id>/likes/', post_like_list, name='post-like-list'),
     path('<str:username>/posts/<int:post_id>/likes/<int:pk>/', post_like_detail, name='post-like-detail'),
+    path('<str:username>/posts/<int:post_id>/saves/', post_save_list, name='post-save-list'),
+    path('<str:username>/posts/<int:post_id>/saves/<int:pk>/', post_save_detail, name='post-save-detail'),
 ]
