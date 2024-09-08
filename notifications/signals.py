@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from contents.models import TaggedUser
@@ -97,3 +97,12 @@ def create_comment_reply_notification(sender, instance, created, **kwargs):
             notification_type=Notification.REPLY,
             post=instance.post
         )
+
+
+@receiver(post_delete, sender=FollowRelation)
+def delete_follow_relation_notification(sender, instance, **kwargs):
+    Notification.objects.create(
+        sender=instance.from_user,
+        receiver=instance.to_user,
+        notification_type=Notification.UNFOLLOW,
+    )
