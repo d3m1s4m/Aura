@@ -10,10 +10,18 @@ user_post_detail = views.UserPostViewSet.as_view(
 user_post_list = views.UserPostViewSet.as_view(
     {'get': 'list', 'post': 'create'}
 )
+
 post_comment_detail = views.PostCommentViewSet.as_view(
     {'get': 'retrieve', 'put': 'update', 'delete': 'destroy', 'post': 'create'}
 )
 post_comment_list = views.PostCommentViewSet.as_view(
+    {'get': 'list', 'post': 'create'}
+)
+
+post_like_detail = views.PostLikeViewSet.as_view(
+    {'get': 'retrieve', 'delete': 'destroy'}
+)
+post_like_list = views.PostLikeViewSet.as_view(
     {'get': 'list', 'post': 'create'}
 )
 
@@ -33,4 +41,6 @@ urlpatterns = [
     path('<str:username>/posts/<int:pk>/', user_post_detail, name='user-post-detail'),
     path('<str:username>/posts/<int:post_id>/comments/', post_comment_list, name='post-comment-list'),
     path('<str:username>/posts/<int:post_id>/comments/<int:pk>/', post_comment_detail, name='post-comment-detail'),
+    path('<str:username>/posts/<int:post_id>/likes/', post_like_list, name='post-like-list'),
+    path('<str:username>/posts/<int:post_id>/likes/<int:pk>/', post_like_detail, name='post-like-detail'),
 ]

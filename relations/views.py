@@ -135,8 +135,9 @@ class FollowCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
 
 
 class RequestAcceptDeclineAPIView(CreateAPIView, DestroyAPIView):
-    serializer_class = RequestSerializer
     queryset = FollowRelation.objects.none()
+    serializer_class = RequestSerializer
+
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
