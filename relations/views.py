@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from custom_lib.common_permissions import ReadOnly, CanViewUserPermission
 from relations.models import FollowRelation, BlockRelation
 from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer, FollowSerializer, \
-    RequestSerializer, BlockSerializer
+    RequestSerializer, BlockSerializer, RemoveFollowerSerializer
 
 User = get_user_model()
 
@@ -194,3 +194,19 @@ class BlockCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
         # retrieve the FollowRelation object to be deleted
         block_relation = get_object_or_404(BlockRelation, blocker=blocker, blocked=blocked)
         return block_relation
+
+
+class FollowerDestroyAPIView(DestroyAPIView):
+    serializer_class = RemoveFollowerSerializer
+    lookup_field = 'username'
+
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        to_user = self.request.user
+        from_user = get_object_or_404(User, username=self.kwargs['username'])
+
+        # fetch the FollowRelation object where the request user is the "to_user"
+        follow_relation = get_object_or_404(FollowRelation, from_user=from_user, to_user=to_user)
+        return follow_relation
+

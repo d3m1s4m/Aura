@@ -135,3 +135,8 @@ class BlockSerializer(serializers.ModelSerializer):
 
         return super().save(**kwargs)
 
+
+class RemoveFollowerSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('id', 'from_user', 'to_user')
+        read_only_fields = ('id', 'from_user', 'to_user')
