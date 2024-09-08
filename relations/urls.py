@@ -14,5 +14,6 @@ urlpatterns = [
         name='received-request-detail'
     ),
     path('blocked-users/', views.BlockedUsersListAPIView.as_view(), name='blocked-users'),
-    path('follow/<str:username>/', views.FollowCreateDestroyAPIView.as_view(), name='follow')
+    path('follow/<str:username>/', views.FollowCreateDestroyAPIView.as_view(), name='follow'),
+    path('block/<str:username>/', views.BlockCreateDestroyAPIView.as_view(), name='block'),
 ]

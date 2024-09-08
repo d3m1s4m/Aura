@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -44,7 +45,6 @@ class BlockedSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = FollowRelation
         fields = ('id', 'from_user', 'to_user', 'is_accepted')
@@ -99,3 +99,39 @@ class RequestSerializer(serializers.ModelSerializer):
         model = FollowRelation
         fields = ('id', 'from_user', 'to_user', 'is_accepted')
         read_only_fields = ('id', 'from_user', 'to_user', 'is_accepted')
+
+
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlockRelation
+        fields = ('id', 'blocker', 'blocked')
+        read_only_fields = ('id', 'blocker', 'blocked')
+
+    def validate(self, attrs):
+        blocker = self.context['request'].user
+        username = self.context['username']
+
+        try:
+            blocked = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise ValidationError(_("The user with this username does not exist."))
+
+        # prevent blocking oneself
+        if blocker == blocked:
+            raise ValidationError(_("You cannot block yourself."))
+
+        # prevent duplicate blocking
+        if BlockRelation.objects.filter(blocker=blocker, blocked=blocked).exists():
+            raise ValidationError(_("You have already blocked this user."))
+
+        return attrs
+
+    def save(self, **kwargs):
+        blocker = self.context['request'].user
+        blocked = get_object_or_404(User, username=self.context['username'])
+
+        kwargs['blocker'] = blocker
+        kwargs['blocked'] = blocked
+
+        return super().save(**kwargs)
+

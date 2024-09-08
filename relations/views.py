@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from custom_lib.common_permissions import ReadOnly, CanViewUserPermission
 from relations.models import FollowRelation, BlockRelation
 from relations.serializers import FollowerSerializer, FollowingSerializer, BlockedSerializer, FollowSerializer, \
-    RequestSerializer
+    RequestSerializer, BlockSerializer
 
 User = get_user_model()
 
@@ -171,3 +171,26 @@ class RequestAcceptDeclineAPIView(CreateAPIView, DestroyAPIView):
 
         follow_relation.decline()
         return Response({'status': 'Follow request declined'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class BlockCreateDestroyAPIView(CreateAPIView, DestroyAPIView):
+    queryset = BlockRelation.objects.none()
+    serializer_class = BlockSerializer
+    lookup_field = 'username'
+
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_context(self):
+        # include the request in the context along with the username
+        context = super().get_serializer_context()
+        context['username'] = self.kwargs['username']
+        return context
+
+    def get_object(self):
+        blocker = self.request.user
+        username = self.kwargs['username']
+        blocked = get_object_or_404(User, username=username)
+
+        # retrieve the FollowRelation object to be deleted
+        block_relation = get_object_or_404(BlockRelation, blocker=blocker, blocked=blocked)
+        return block_relation
