@@ -20,6 +20,11 @@ from django.contrib import admin
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
+# customizing django admin
+admin.site.site_header = 'Aura Administration'  # default: "Django Administration"
+admin.site.index_title = 'Administration panel'  # default: "Site administration"
+admin.site.site_title = 'Aura admin'  # default: "Django site admin"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('djoser.urls')),
