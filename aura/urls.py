@@ -19,6 +19,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 # customizing django admin
 admin.site.site_header = 'Aura Administration'  # default: "Django Administration"
@@ -27,13 +32,19 @@ admin.site.site_title = 'Aura admin'  # default: "Django site admin"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # djoser
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    # apps
     path('activities/', include('activities.urls')),
     path('locations/', include('locations.urls')),
     path('contents/', include('contents.urls')),
     path('relations/', include('relations.urls')),
     path('notifications/', include('notifications.urls')),
+    # API schema generation and documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ] + debug_toolbar_urls()
 
 if settings.DEBUG:
