@@ -35,6 +35,10 @@ class CanViewUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         user = User.objects.filter(username=view.kwargs['username']).first()
 
+        # deny access if user account is not active
+        if user.is_active is False:
+            return False
+
         # allow access to the post owner
         if user == request.user:
             return True
