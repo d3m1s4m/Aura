@@ -41,6 +41,7 @@ urlpatterns = [
     path('contents/', include('contents.urls')),
     path('relations/', include('relations.urls')),
     path('notifications/', include('notifications.urls')),
+    path('users/', include('users.urls')),
     # API schema generation and documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
