@@ -45,15 +45,3 @@ class UserDeactivateSerializer(serializers.ModelSerializer):
         instance.is_active = False
         instance.save()
         return instance
-
-
-class UserActivateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'is_active')
-        read_only_fields = ('id', 'username', 'is_active')
-
-    def update(self, instance, validated_data):
-        instance.is_active = True
-        instance.save()
-        return instance
