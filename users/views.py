@@ -1,9 +1,9 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView
 from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
 
 from relations.models import BlockRelation
-from users.serializers import UserLightSerializer
+from users.serializers import UserLightSerializer, UserDeactivateSerializer
 from users.models import User
 
 
@@ -25,3 +25,12 @@ class UsersListAPIView(ListAPIView):
         queryset.exclude(id__in=blocker_users)
 
         return queryset
+
+
+class UserDeactivateUpdateAPIView(UpdateAPIView):
+    serializer_class = UserDeactivateSerializer
+
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
