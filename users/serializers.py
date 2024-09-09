@@ -33,3 +33,15 @@ class UserLightSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'avatar', 'is_verified')
+
+
+class UserDeactivateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'is_active')
+        read_only_fields = ('id', 'username', 'is_active')
+
+    def update(self, instance, validated_data):
+        instance.is_active = False
+        instance.save()
+        return instance
