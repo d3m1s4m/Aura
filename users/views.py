@@ -18,7 +18,7 @@ class UsersListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        queryset = User.objects.all()
+        queryset = User.objects.filter(is_active=True)
 
         blocker_users = BlockRelation.objects.filter(blocked=user).values_list('blocker', flat=True)
 
