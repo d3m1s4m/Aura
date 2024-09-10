@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_spectacular',
     'debug_toolbar',
+    'django_extensions',
 
     'activities.apps.ActivitiesConfig',
     'contents.apps.ContentsConfig',
